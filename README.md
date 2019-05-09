@@ -4,7 +4,7 @@ Diese Repository behandelt die Umsetzung von der LB2.
 
 ## Einleitung
 
-Diese Dokumentation wurde von David Malic im Rahmen des Moduls M300 (Plattformübergreifende Dienste in ein Netzwerk integrieren)
+Diese Dokumentation wurde von Altin Nuhiu (Plattformübergreifende Dienste in ein Netzwerk integrieren)
 erarbeitet und zeigt alle Schritte auf, die es braucht um die LB2-Kriterien zu erfüllen.
 
 ## Inhaltsverzeichnis
@@ -90,3 +90,19 @@ Ich könnte während diesem Projekt sehr viel neues über Docker und insbesonder
 ## Reflexion
 
 Dieses Projekt war sehr lehrreich. Ich hatte gegen den Schluss ein bisschen Zeitdruck da ich die Zeit nicht optimal geplant habe. Mit dem Endresultat bin ich aber trotzdem zufrieden. Ich habe auch gemerkt wie wichtig Docker ist und das es bestimmt in Zukunft noch viel wichter sein wird. 
+
+## Vergleich Vorwissen/Wissenszuwachs
+Vor den Projekt wuste ich noch nichts über docker sprich container usw. allerdings hatte ich diverse schwierigkeiten, die ich überwinden musste aber kann jetzt sagen, dass ich einigermassen docker gut verstehe. Der wissenszuwachs ist enorm. Wenn man bedenkt, dass ich vorher kein plan hatte und jetzt das einigermasesn in Griff habe ist es erstaunlich das alles für mich in dieser kurzen Zeit gelernt zu haben.
+
+Ich hatte bisher noch nie mit Docker gearbeitet oder davon gehört, hatte zwar diverse schwierigkeiten doch mit einbisschen googlen und youtube Videos ging das ganze schlussendlich doch gut aus.
+
+Ich wusste nicht einmal wie man docker richtig konfigurieren muss und das mann in anfangs starten muss, auch Luafwerke spezifisch anhängen musste. Ich kannte die Befehle nicht usw.
+
+## Kubernetes
+Kubernetes fasst Container-Images, ihre Konfiguration und die Anzahl der benötigten Instanzen in Deployments zusammen, so der Sprachgebrauch des Orchestrierungssystems. Die Parameter eines Deployments überwacht Kubernetes selbsttätig. Das Tool sorgt dafür, dass die gewünschte Anzahl von Containern jederzeit läuft. Änderungen an der Software oder der Konfiguration verteilt Kubernetes mit einem Rollout. Dieser Prozess lässt sich pausieren, fortsetzen und rückgängig machen (Rollback).
+
+Optimierung der Nutzung der Computer-Ressourcen Kubernetes setzt die Container eines Deployments selbständig dort ein, wo entsprechende Ressourcen frei sind. Der Anwender kann Mindest- und Höchstwerte der Ressourcennutzung (Rechenzeit, Speicherplatz) für die Container festlegen, um dem Orchestrierungstool einen Rahmen vorzugeben.
+
+Zahlreiche Optionen für dauerhafte Datenspeicherung (Persistent Storage)
+
+Container sind zustandslos. Für die dauerhafte Speicherung von Konfigurations- und Nutzerdaten bietet Kubernetes Schnittstellen zu zahlreichen Diensten wie zum Beispiel EBS von Amazon Web Services oder Google Cloud Platform.
