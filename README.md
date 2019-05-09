@@ -84,12 +84,13 @@ Ich könnte während diesem Projekt sehr viel neues über Docker und insbesonder
 
 ## Reflexion
 
-Dieses Projekt war sehr lehrreich. Ich hatte gegen den Schluss ein bisschen Zeitdruck da ich die Zeit nicht optimal geplant habe. Mit dem Endresultat bin ich aber trotzdem zufrieden. Ich habe auch gemerkt wie wichtig Docker ist und das es bestimmt in Zukunft noch viel wichter sein wird. 
+Ich habe zuvor noch nie mit Docker gearbeitet. Doch nach diesem Modul habe ich gesehen wie viel Docker mit sich bringt und wieviel zustanden kommen kann wen man diese auch beherscht. 
+Ich würde mir in Zukunft mehr Zeit geben für das da ich mir nicht sicher bin ob ich alles gut gemacht habe und ob es so auch akzeptabel für einen genügende Note reicht.
 
 ## Vergleich Vorwissen/Wissenszuwachs
 Vor den Projekt wuste ich noch nichts über docker sprich container usw. allerdings hatte ich diverse schwierigkeiten, die ich überwinden musste aber kann jetzt sagen, dass ich einigermassen docker gut verstehe. Der wissenszuwachs ist enorm. Wenn man bedenkt, dass ich vorher kein plan hatte und jetzt das einigermasesn in Griff habe ist es erstaunlich das alles für mich in dieser kurzen Zeit gelernt zu haben.
 
-Ich hatte bisher noch nie mit Docker gearbeitet oder davon gehört, hatte zwar diverse schwierigkeiten doch mit einbisschen googlen und youtube Videos ging das ganze schlussendlich doch gut aus.
+Ich hatte bisher noch nie mit Docker gearbeitet oder davon gehört, hatte zwar diverse schwierigkeiten doch mit einbisschen googlen und Youtube Videos ging das ganze schlussendlich doch gut aus.
 
 Ich wusste nicht einmal wie man docker richtig konfigurieren muss und das mann in anfangs starten muss, auch Luafwerke spezifisch anhängen musste. Ich kannte die Befehle nicht usw.
 
