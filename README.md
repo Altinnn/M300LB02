@@ -26,6 +26,8 @@
 - K5
   - Vergleich Vorwissen - Wissenzuwachs
   - Reflexion
+  - Vergleich Vorwissen/Wissenszuwachs
+  - Kubernetes
 
 ------
 
