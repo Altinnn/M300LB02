@@ -1,12 +1,5 @@
 # M300 - LB2
 
-Diese Repository behandelt die Umsetzung von der LB2.
-
-## Einleitung
-
-Diese Dokumentation wurde von Altin Nuhiu (Plattformübergreifende Dienste in ein Netzwerk integrieren)
-erarbeitet und zeigt alle Schritte auf, die es braucht um die LB2-Kriterien zu erfüllen.
-
 ## Inhaltsverzeichnis
 
 - K1
