@@ -56,7 +56,6 @@ Dieser freie Quelltext-Editor von Microsoft, ermöglicht uns, unsere Workflows b
 - Microservices: 
   Von Microservices habe ich ebenfalls schon öfters gehört und kenne es nur ein bisschen aus der Theorie. In der Praxis habe ich es nie angewandt und kenne mich deswegen auch nicht sehr gut aus.
 
-# K2
 
 ## Kennt die Docker spezifischen Befehle
 
@@ -73,6 +72,195 @@ Dieser freie Quelltext-Editor von Microsoft, ermöglicht uns, unsere Workflows b
 | docker ps | Überblick über die aktuellen Container, wie z.B. Namen, IDs und Status
 | docker images | Liste lokaler Images aus, wobei Informationen zu Repository-Namen, Tag-Namen und Grösse enthalten sind
 | docker rm | Entfernt einen oder mehrere Container. Gibt die Namen oder IDs erfolgreich gelöschter Container zurück
+
+# K3 - Container
+### Container
+
+Es werden insgesamt 8 Container via `docker-compose.yml` aufgebaut:
+
+| Container | Verwendung              |
+| --------- | ----------------------- |
+| `db-nc`   | Datenbank für Nextcloud |
+| `app-nc`  | Nextcloud Applikation   |
+| `web-nc`  | Webserver für Nextcloud |
+| `app-pma` | phpMyAdmin              |
+| `proxy`   | nginx-Reverse Proxy     |
+| `certs`   | Self-signed Zertifikat  |
+
+Es werden dabei keine Dockerfiles genutzt, stattdessen wird alles mittels `docker-compose` gelöst.
+
+<br>
+
+### Volumes
+
+Damit die Daten beim stoppen nicht verloren gehen, werden mittel Volumes persistente Speicher erstellt:
+
+| Volume                    | Nutzung                       |
+| ------------------------- | ----------------------------- |
+| `db-nc`                   | Speicher für die Nextcloud DB |
+| `nextcloud`               | Nextcloud Daten               |
+| `./web-nc/nginx.conf`     | nginx.conf für `web-nc`       |
+| `certs`                   | Zertifikate                   |
+| `./proxy/uploadsize.conf` | uploadsize.conf für `proxy`   |
+| `vhost.d`                 | nginx-proxy Daten             |
+| `html`                    | nginx-proxy Daten             |
+| `/var/run/docker.sock`    | Docker-Daemon Socket (API)    |
+
+<br>
+
+#### Netzwerk
+
+Da alle Container mit einem docker-compose.yml gebaut werden, können alle untereinander intern kommunizieren. Wird kein Port oder Netzwerk definiert, können die Container nicht nach aussen interagieren. Beispielsweise müssen alle Webserver (web-nc, app-wp, app-pma) das Netzwerk des Proxys und zusätzlich den "default"-Netzwerk haben, da sie ansonsten keine Verbindung aufbauen können.
+
+<br>
+
+### Schichtenmodell
+
+[![M300lb2-Layer.jpg](https://i.postimg.cc/yYfqr81b/M300lb2-Layer.jpg)](https://postimg.cc/w7sb1HsX)
+
+Das Schichtenmodell zeigt lediglich den Aufbau von _Docker für Windows_. Zu unterst die Infrastruktur/Hardware, danach ein Betriebssysten, Container Engine/Docker und darauf die Container.
+
+<br>
+
+### Umgebungsvariablen
+
+Die Umgebungsvariablen werden entweder direkt im `docker-compose.yml` oder in einem `.env`-File definiert. \
+Verwendete Umgebungsvariablen:
+
+| Env-Variable          | Nutzende Container            | Beschreibung                                 |
+| --------------------- | ----------------------------- | -------------------------------------------- |
+| `MYSQL_ROOT_PASSWORD` | `db-nc`, `app-nc`, `db-wp`    | Root-Passwort für die MariaDB-Datenbank      |
+| `MYSQL_PASSWORD`      | `db-nc`, `app-nc`, `db-wp`    | Passwort für den erstellten User             |
+| `MYSQL_DATABASE`      | `db-nc`, `app-nc`, `db-wp`    | Zu erstellende Datenbank                     |
+| `MYSQL_USER`          | `db-nc`, `app-nc`, `db-wp`    | Zu erstellender User                         |
+| `VIRTUAL_HOST`        | `web-nc`, `app-wp`, `app-pma` | Hostname/(Sub-)Domain des Containers (Proxy) |
+| `PMA_HOSTS`           | `app-pma`                     | Datenbanken für phpMyAdmin (Container Namen) |
+| `SSL_SUBJECT`         | `certs`                       | Domain für das Zertifikat                    |
+| `CA_SUBJECT`          | `certs`                       | Antragssteller                               |
+| `SSL_KEY`             | `certs`                       | Speicherort .key-File                        |
+| `SSL_CSR`             | `certs`                       | Speicherort .csr-File                        |
+| `SSL_CERT`            | `certs`                       | Speicherort .crt-File                        |
+
+<br>
+
+### Testfälle
+
+**Testfall 1: Websites aufrufen** 
+Voraussetzungen: Container sind gestartet.
+
+| Nr.  | Testfall                                   | Erwartet                                        | Effektiv                          |   OK   |
+| :--: | ------------------------------------------ | ----------------------------------------------- | --------------------------------- | :----: |
+| 1.1  | Nextcloud aufrufbar: <br>https://localhost | Seite wird geöffnet <br>Keine 500-Fehlermeldung | Seite wird ohne Probleme geöffnet | **OK** |
+| 1.2  | phpMyAdmin aufrufbar: <br>http://localhost | Seite wird geöffnet <br>Keine 500-Fehlermeldung | Seite wird ohne Probleme geöffnet | **OK** |
+
+**Testfall 2: Proxy** \
+Voraussetzungen: Container sind gestartet.
+
+| Nr.  | Testfall                                       | Erwartet                                                     | Effektiv                           |   OK   |
+| :--: | ---------------------------------------------- | ------------------------------------------------------------ | ---------------------------------- | :----: |
+|  2.  | Ports 80, 443 offen: <br>HTTP/S-Seite aufrufen | Seiten werden geöffnet <br>Keine Fehlermeldungen (ausser Zerti) | Seiten wird ohne Probleme geöffnet | **OK** |
+
+# K4 - Sicherheit
+
+## Service-Überwachung
+
+Für die Container-Überwachung auf _Docker for Windows_ gibt es ein OpenSource-Tool, welches von der Community containisiert wurde: <https://github.com/maheshmahadevan/docker-monitoring-windows>. \
+Es beinhaltet Prometheus (Backend) und Grafana (Frontend). Standardmässig gibt es zwei Dashboard: _Docker Host_ und _Docker Containers_. Darin werden bereits mehrere Ressourcen geloggt und grafisch dargestellt.
+
+Zudem lassen sich damit auch Alarme einstellen, so dass bei einer vordefinierten Ereignis eine E-Mail, Slack-Benachrichtigung, etc. gesendet wird. 
+Aber damit auch E-Mails versendet werden können, muss der SMTP-Server vorher in der `config.monitoring` definiert werden.
+
+Sobald die Container gestartet sind, kann über <http://localhost:3000/> die Oberfläche aufgerufen werden. User und Passwort ist standardmässig `admin`. 
+Anschliessend kann man beispielsweise einen Dashboard öffnen und dort die Auswertungen sehen. Zwar kann man diese über die Benutzeroberfläche bearbeiten, kann sie aber nicht abspeichern. Man muss entweder die Config (wird beim Speichern angezeigt) in die Zwischenablage kopieren, oder speichert es direkt als JSON-Datei ab. Diese Datei wird anschliessend in *./Monitoring/grafana/privisioning/dashboards* gespeichert. \
+In meinem Beispiel habe ich ein neues Dashboard _Custom Dashboard.json_, welches auf _Docker Containers.json_ basiert. Ich habe lediglich noch einen Memory Usage-Panel hinzugefügt und daraus ein Alarm erstellt, sollte die Nutzung die 200MB überschreiten. \
+**HINWEIS**: Damit die E-Mail versendet wird, muss im `config.monitoring` die SMTP-Daten angegeben werden. Ansonsten funktioniert es nicht.
+
+Alle Dateien und Container befinden sich im Ordner Monitoring.
+
+<br>
+
+### Aktive Benachrichtigung
+
+Wie bereits unter [Service-Überwachung](#Service-Überwachung) beschrieben, habe ich testweise einen Alarm erstellt, welches mir eine E-Mail sendet, sofern die Arbeitsspeicher-Auslastung die 200MB Grenze überschreitet (SMTP-Server muss vorher eingerichtet sein). \
+
+Mit Grafana lässt aber noch viel mehr Benachrichtungen einstellen, wie z. B. Slack-Benachrichtigung, etc. Auch lassen sich diverse Alarme/Benachrichtungen einstellen.
+
+<br>
+
+### Container Absicherung
+
+Um die Container selber abzusichern habe ich folgende Punkte erledigt:
+
+- Non-Root User definiert*
+- CPU-Nutzung begrenzt
+- Arbeitsspeicher-Nutzung begrenzt
+- Restart-Eingeschaft definiert (Was passiert wenn die Contianer sich selber ausschalten)
+
+Der User kann entweder direkt im `docker-compose.yml` oder im Dockerfile definiert werden.
+
+- docker-compose.yml --> `user: "Benutzer:Gruppe"` (siehe Beispiel)
+- Dockerfile --> `USER Benutzer` (siehe Beispiel) 
+
+CPU und Arbeitspeicher kann nur im `docker-compose.yml` begrenzt werden (oder direkt per Befehlszeile):
+
+```
+deploy:
+  resources:
+    limits:
+      cpus: '0.25'
+      memory: 256M
+```
+
+Die Restart-Eingeschaft wird im `docker-compose.yml` definiert. Es beschreibt, was passieren soll, sofern ein Container sich selber ausschaltet (sei es durch einen Befehl oder einen Absturz):
+    
+
+```
+restart: <option>
+```
+
+Als `<option>` gibt es: `no`, `always`, `on-failure` oder `unless-stopped` \
+Standardmässig verwendet man `always`, sofern der Container nicht von selbst ausgeschaltet werden soll.
+
+<br>
+
+#### Beispiele
+
+- docker-compose.yml
+
+  ```
+  db-nc:
+    image: mariadb
+    container_name: nextcloud-mariadb
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    volumes:
+      - db-nc:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=nextcloud
+    env_file:
+      - db-nc.env
+    user: "mysql:mysql"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+  ```
+
+- Dockerfile (_`USER appuser`_)
+
+  ```
+  FROM nextcloud:fpm-alpine
+  
+  RUN addgroup -g 2906 -S appuser && \
+      adduser -u 2906 -S appuser -G appuser
+  USER appuser
+  ```
+
+<br>
+
+\* Es können nicht alle Container als Non-Root User ausgeführt werden, da diese Zugriff auf Systempfade benötigen (ansonsten erscheint die Fehlermeldung "Permission denied"). Möchte man sie dennoch als normalen User ausführen, müsste man solche Container komplett von Grund auf selber aufbauen. Was aus Zeitgründen in diesem Modul nicht möglich ist.
+
 
 # K5
 
